@@ -81,7 +81,7 @@ PORT     STATE SERVICE     VERSION
 |_    </body></html>
 ```
 
-<img src=
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi1.jpg" width=80% />
 
 
 
