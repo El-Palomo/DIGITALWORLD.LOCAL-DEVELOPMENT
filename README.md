@@ -411,7 +411,8 @@ S-1-5-21-779411179-1483911247-3630892801-1000 DEVELOPMENT\intern (Local User)
 
 - Toca revisar el código HTML de las páginas porque han dejado comentarios y browsear mucho.
 
-| URL        | Comentario de lo identificado|
+| URL | Comentario |
+| ------------- | ------------- |
 |8080/development.html | Revisar HTML                   |
 |8080/developmentsecretpage/ |                    |
 |8080/developmentsecretpage/patrick.php |                    |
